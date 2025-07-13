@@ -11,6 +11,8 @@ function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [view, setView] = useState(true);
+  const [loginError, setLoginError] = useState(""); // <-- novo stanje za grešku
+
   const {
     register,
     handleSubmit,
@@ -19,13 +21,24 @@ function LoginPage() {
   } = useForm({ resolver: zodResolver(loginSchema) });
 
   async function onSubmit(data) {
+    setLoginError(""); // resetuj grešku pre svakog pokušaja
+
     try {
       const res = await handleLogin(data);
-      login(res); // prosledi ceo response da se token i user zapamte
+
+      // Pretpostavimo da handleLogin vraća objekat sa tokenom na uspeh
+      // i objekat sa greškom na neuspeh, prilagodi po potrebi
+      if (!res || !res.accessToken) {
+        setLoginError(res?.message || "Korisnički podaci nisu tačni, pokušajte ponovo.");
+        return;
+      }
+
+      login(res); // upamti usera i token
       reset();
       navigate("/");
     } catch (e) {
       console.error("Login failed:", e);
+      setLoginError("Došlo je do greške pri prijavi. Pokušajte ponovo.");
     }
   }
 
@@ -38,19 +51,22 @@ function LoginPage() {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
           {/* Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-2">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl mb-4 shadow-lg">
               <Lock className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Dobrodošao korisniče
             </h1>
-            <p className="text-gray-600">Prijavite se na vaš nalog</p>
+            <p className="text-gray-600 mb-1">Prijavite se na vaš nalog</p>
+            {loginError && (
+              <p className="text-red-600 text-sm font-medium">{loginError}</p>
+            )}
           </div>
 
           {/* Form */}
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            {/* Email Input */}
+            {/* Username Input */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Username
@@ -134,4 +150,5 @@ function LoginPage() {
     </div>
   );
 }
+
 export { LoginPage };
