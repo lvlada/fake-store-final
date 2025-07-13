@@ -1,16 +1,14 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
-// 1. Napravi ThemeContext
 const ThemeContext = createContext();
 
-// 2. Custom hook za lakši pristup
 export const useTheme = () => useContext(ThemeContext);
 
-// 3. Provider komponenta
+
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState("light");
 
-  // Provera localStorage prilikom učitavanja
+
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) {
@@ -19,7 +17,7 @@ export const ThemeProvider = ({ children }) => {
     }
   }, []);
 
-  // Promeni temu i upiši u localStorage
+e
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
